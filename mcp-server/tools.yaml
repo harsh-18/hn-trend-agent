@@ -1,0 +1,40 @@
+sources:
+  hackernews-bq:
+    kind: bigquery
+    project: gen-lang-client-0268313809
+
+tools:
+  get_trending_tech_stories:
+    kind: bigquery-sql
+    source: hackernews-bq
+    description: >
+      Fetches the top trending tech stories from Hacker News
+      for a given topic keyword, ranked by community score.
+      Use this tool for any question about what is trending,
+      popular, or being discussed in the tech world right now.
+    parameters:
+      - name: topic
+        type: string
+        description: >
+          Topic to search for. Examples: AI, Python, Google,
+          cloud, startup, security, open source, LLM
+    statement: |
+      SELECT
+        title,
+        score,
+        url,
+        DATE(timestamp) AS posted_on,
+        descendants        AS total_comments
+      FROM `bigquery-public-data.hacker_news.full`
+      WHERE type = 'story'
+        AND LOWER(title) LIKE CONCAT('%', LOWER(@topic), '%')
+        AND timestamp >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(),
+                         INTERVAL 90 DAY)
+        AND score IS NOT NULL
+        AND score > 5
+      ORDER BY score DESC
+      LIMIT 8
+
+toolsets:
+  hn_toolset:
+    - get_trending_tech_stories
