@@ -25,3 +25,25 @@ User → ADK Agent (Cloud Run) → MCP Toolbox (Cloud Run) → BigQuery
 - Google Cloud Run (2 services)
 - Gemini 2.5 Flash via Vertex AI
 - Python 3.11
+
+## HOW TO TEST THE LIVE AGENT:
+
+Step 1 - Create a session:
+curl -X POST \
+  https://hn-trend-agent-785984389524.us-central1.run.app/apps/hn_agent/users/user/sessions \
+  -H "Content-Type: application/json" \
+  -d '{}'
+
+Step 2 - Copy the "id" from response, then run:
+curl -X POST \
+  https://hn-trend-agent-785984389524.us-central1.run.app/run \
+  -H "Content-Type: application/json" \
+  -d '{
+    "app_name": "hn_agent",
+    "user_id": "user", 
+    "session_id": "PASTE_SESSION_ID",
+    "new_message": {
+      "role": "user",
+      "parts": [{"text": "What is trending in AI right now?"}]
+    }
+  }'
